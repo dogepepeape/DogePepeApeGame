@@ -56,11 +56,11 @@
       }
 
       var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/NinjaCats4.loader.js";
+      var loaderUrl = buildUrl + "/NinjaCats3.loader.js";
       var config = {
-        dataUrl: buildUrl + "/NinjaCats4.data.unityweb",
-        frameworkUrl: buildUrl + "/NinjaCats4.framework.js.unityweb",
-        codeUrl: buildUrl + "/NinjaCats4.wasm.unityweb",
+        dataUrl: buildUrl + "/NinjaCats3.data.unityweb",
+        frameworkUrl: buildUrl + "/NinjaCats3.framework.js.unityweb",
+        codeUrl: buildUrl + "/NinjaCats3.wasm.unityweb",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "DefaultCompany",
         productName: "ton-test",
@@ -115,135 +115,5 @@
       };
       document.body.appendChild(script);
     </script>
-    <script>
-      var playerId = null;
-      var highScore = 0;
-  
-      function getPlayerId() {
-          // Здесь должен быть ваш код для получения ID игрока
-          // Например, использование API Telegram
-          playerId = "your-player-id"; // Замените своим методом получения ID
-          return playerId;
-      }
-  
-      function saveScore(score) {
-          // Здесь сохраните рекорд игрока
-          if (score > highScore) {
-              highScore = score;
-              // Сохраните highScore в местное хранилище или отправьте на сервер
-          }
-      }
-  
-      function getHighScore() {
-          // Вернуть максимальный рекорд, полученный ранее
-          return highScore;
-      }
-  
-      UnityInstance.Module['GetPlayerId'] = function() {
-          return getPlayerId();
-      };
-  
-      UnityInstance.Module['SaveScore'] = function(score) {
-          saveScore(score);
-      };
-  
-      UnityInstance.Module['GetHighScore'] = function() {
-          return getHighScore();
-      };
-  </script>
-  <script>
-    var playerId = null;
-    var highScore = 0;
-
-    // Replace with your actual Bot API token and game details
-    const botToken = '';
-    const chatId = 'YOUR_CHAT_ID';
-    const inlineMessageId = 'YOUR_INLINE_MESSAGE_ID'; // Use if sending inline messages
-
-    function getPlayerId() {
-        // This function should fetch the player ID from the game context
-        // For now, we simulate it
-        playerId = "your-player-id"; // Replace with actual logic to fetch player ID
-        return playerId;
-    }
-
-    function saveScore(score) {
-        // Set the new score using the Telegram Bot API
-        if (score > highScore) {
-            highScore = score;
-
-            // Telegram API call to set the game score
-            fetch(`https://api.telegram.org/bot${botToken}/setGameScore`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    user_id: playerId,
-                    score: highScore,
-                    chat_id: chatId,
-                    message_id: inlineMessageId // Optional, use if applicable
-                    // force: false, // Uncomment if you want to allow decreasing score
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.ok) {
-                    console.log('Score saved successfully:', data.result);
-                } else {
-                    console.error('Error saving score:', data);
-                }
-            })
-            .catch(error => {
-                console.error('Fetch error:', error);
-            });
-        }
-    }
-
-    function getHighScore() {
-        // Get the high score for the user
-        fetch(`https://api.telegram.org/bot${botToken}/getGameHighScores`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                user_id: playerId,
-                chat_id: chatId,
-                message_id: inlineMessageId // Optional, use if applicable
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.ok) {
-                const scores = data.result;
-                if (scores.length > 0) {
-                    highScore = scores[0].score; // Get the score of the user
-                    console.log('High Score:', highScore);
-                }
-            } else {
-                console.error('Error fetching high scores:', data);
-            }
-        })
-        .catch(error => {
-            console.error('Fetch error:', error);
-        });
-    }
-
-    // Expose Unity functions to call from Unity
-    UnityInstance.Module['GetPlayerId'] = function() {
-        return getPlayerId();
-    };
-
-    UnityInstance.Module['SaveScore'] = function(score) {
-        saveScore(score);
-    };
-
-    UnityInstance.Module['GetHighScore'] = function() {
-        getHighScore();
-    };
-</script>
-
-  
   </body>
 </html>
