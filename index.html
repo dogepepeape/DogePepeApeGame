@@ -1,140 +1,249 @@
 <!DOCTYPE html>
 <html lang="en-us">
-<head>
+  <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Unity WebGL Player | ton-test</title>
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
     <link rel="stylesheet" href="TemplateData/style.css">
-</head>
-<body>
+  </head>
+  <body>
     <div id="unity-container" class="unity-desktop">
-        <canvas id="unity-canvas" width=960 height=600></canvas>
-        <div id="unity-loading-bar">
-            <div id="unity-logo"></div>
-            <div id="unity-progress-bar-empty">
-                <div id="unity-progress-bar-full"></div>
-            </div>
+      <canvas id="unity-canvas" width=960 height=600></canvas>
+      <div id="unity-loading-bar">
+        <div id="unity-logo"></div>
+        <div id="unity-progress-bar-empty">
+          <div id="unity-progress-bar-full"></div>
         </div>
-        <div id="unity-warning"></div>
-        <div id="unity-footer">
-            <div id="unity-webgl-logo"></div>
-            <div id="unity-fullscreen-button"></div>
-            <div id="unity-build-title">ton-test</div>
-        </div>
+      </div>
+      <div id="unity-warning"> </div>
+      <div id="unity-footer">
+        <div id="unity-webgl-logo"></div>
+        <div id="unity-fullscreen-button"></div>
+        <div id="unity-build-title">ton-test</div>
+      </div>
     </div>
     <script>
-        var container = document.querySelector("#unity-container");
-        var canvas = document.querySelector("#unity-canvas");
-        var loadingBar = document.querySelector("#unity-loading-bar");
-        var progressBarFull = document.querySelector("#unity-progress-bar-full");
-        var fullscreenButton = document.querySelector("#unity-fullscreen-button");
-        var warningBanner = document.querySelector("#unity-warning");
+      var container = document.querySelector("#unity-container");
+      var canvas = document.querySelector("#unity-canvas");
+      var loadingBar = document.querySelector("#unity-loading-bar");
+      var progressBarFull = document.querySelector("#unity-progress-bar-full");
+      var fullscreenButton = document.querySelector("#unity-fullscreen-button");
+      var warningBanner = document.querySelector("#unity-warning");
 
-        function unityShowBanner(msg, type) {
-            function updateBannerVisibility() {
-                warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
-            }
-            var div = document.createElement('div');
-            div.innerHTML = msg;
-            warningBanner.appendChild(div);
-            if (type == 'error') div.style = 'background: red; padding: 10px;';
-            else {
-                if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
-                setTimeout(function () {
-                    warningBanner.removeChild(div);
-                    updateBannerVisibility();
-                }, 5000);
-            }
+      // Shows a temporary message banner/ribbon for a few seconds, or
+      // a permanent error message on top of the canvas if type=='error'.
+      // If type=='warning', a yellow highlight color is used.
+      // Modify or remove this function to customize the visually presented
+      // way that non-critical warnings and error messages are presented to the
+      // user.
+      function unityShowBanner(msg, type) {
+        function updateBannerVisibility() {
+          warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
+        }
+        var div = document.createElement('div');
+        div.innerHTML = msg;
+        warningBanner.appendChild(div);
+        if (type == 'error') div.style = 'background: red; padding: 10px;';
+        else {
+          if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
+          setTimeout(function() {
+            warningBanner.removeChild(div);
             updateBannerVisibility();
+          }, 5000);
         }
+        updateBannerVisibility();
+      }
 
-        var buildUrl = "Build";
-        var loaderUrl = buildUrl + "/NinjaCats4.loader.js";
-        var config = {
-            dataUrl: buildUrl + "/NinjaCats4.data.unityweb",
-            frameworkUrl: buildUrl + "/NinjaCats4.framework.js.unityweb",
-            codeUrl: buildUrl + "/NinjaCats4.wasm.unityweb",
-            streamingAssetsUrl: "StreamingAssets",
-            companyName: "DefaultCompany",
-            productName: "ton-test",
-            productVersion: "0.1",
-            showBanner: unityShowBanner,
-        };
+      var buildUrl = "Build";
+      var loaderUrl = buildUrl + "/NinjaCats4.loader.js";
+      var config = {
+        dataUrl: buildUrl + "/NinjaCats4.data.unityweb",
+        frameworkUrl: buildUrl + "/NinjaCats4.framework.js.unityweb",
+        codeUrl: buildUrl + "/NinjaCats4.wasm.unityweb",
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "DefaultCompany",
+        productName: "ton-test",
+        productVersion: "0.1",
+        showBanner: unityShowBanner,
+      };
 
-        if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-            var meta = document.createElement('meta');
-            meta.name = 'viewport';
-            meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
-            document.getElementsByTagName('head')[0].appendChild(meta);
-            container.className = "unity-mobile";
-            canvas.className = "unity-mobile";
+      // By default Unity keeps WebGL canvas render target size matched with
+      // the DOM size of the canvas element (scaled by window.devicePixelRatio)
+      // Set this to false if you want to decouple this synchronization from
+      // happening inside the engine, and you would instead like to size up
+      // the canvas DOM size and WebGL render target sizes yourself.
+      // config.matchWebGLToCanvasSize = false;
 
-            unityShowBanner('WebGL builds are not supported on mobile devices.');
-        } else {
-            canvas.style.width = "960px";
-            canvas.style.height = "600px";
-        }
+      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        // Mobile device style: fill the whole browser client area with the game canvas:
 
-        loadingBar.style.display = "block";
+        var meta = document.createElement('meta');
+        meta.name = 'viewport';
+        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+        document.getElementsByTagName('head')[0].appendChild(meta);
+        container.className = "unity-mobile";
+        canvas.className = "unity-mobile";
 
-        var script = document.createElement("script");
-        script.src = loaderUrl;
-        script.onload = () => {
-            createUnityInstance(canvas, config, (progress) => {
-                progressBarFull.style.width = 100 * progress + "%";
-            }).then((unityInstance) => {
-                loadingBar.style.display = "none";
-                fullscreenButton.onclick = () => {
-                    unityInstance.SetFullscreen(1);
-                };
-            }).catch((message) => {
-                alert(message);
-            });
-        };
-        document.body.appendChild(script);
+        // To lower canvas resolution on mobile devices to gain some
+        // performance, uncomment the following line:
+        // config.devicePixelRatio = 1;
+
+        unityShowBanner('WebGL builds are not supported on mobile devices.');
+      } else {
+        // Desktop style: Render the game canvas in a window that can be maximized to fullscreen:
+
+        canvas.style.width = "960px";
+        canvas.style.height = "600px";
+      }
+
+      loadingBar.style.display = "block";
+
+      var script = document.createElement("script");
+      script.src = loaderUrl;
+      script.onload = () => {
+        createUnityInstance(canvas, config, (progress) => {
+          progressBarFull.style.width = 100 * progress + "%";
+        }).then((unityInstance) => {
+          loadingBar.style.display = "none";
+          fullscreenButton.onclick = () => {
+            unityInstance.SetFullscreen(1);
+          };
+        }).catch((message) => {
+          alert(message);
+        });
+      };
+      document.body.appendChild(script);
     </script>
-
     <script>
-        var playerId = null;
-        var highScore = 0;
+      var playerId = null;
+      var highScore = 0;
+  
+      function getPlayerId() {
+          // Здесь должен быть ваш код для получения ID игрока
+          // Например, использование API Telegram
+          playerId = "your-player-id"; // Замените своим методом получения ID
+          return playerId;
+      }
+  
+      function saveScore(score) {
+          // Здесь сохраните рекорд игрока
+          if (score > highScore) {
+              highScore = score;
+              // Сохраните highScore в местное хранилище или отправьте на сервер
+          }
+      }
+  
+      function getHighScore() {
+          // Вернуть максимальный рекорд, полученный ранее
+          return highScore;
+      }
+  
+      UnityInstance.Module['GetPlayerId'] = function() {
+          return getPlayerId();
+      };
+  
+      UnityInstance.Module['SaveScore'] = function(score) {
+          saveScore(score);
+      };
+  
+      UnityInstance.Module['GetHighScore'] = function() {
+          return getHighScore();
+      };
+  </script>
+  <script>
+    var playerId = null;
+    var highScore = 0;
 
-        function getPlayerId() {
-            // Здесь должен быть ваш код для получения ID игрока
-            // Например, использование API Telegram
-            playerId = "your-player-id"; // Замените своим методом получения ID
-            return playerId;
+    // Replace with your actual Bot API token and game details
+    const botToken = '7198633950:AAHQlLTQIWRIS7YB69kfP9XlDKk7Shjeqck';
+    const chatId = 'YOUR_CHAT_ID';
+    const inlineMessageId = 'YOUR_INLINE_MESSAGE_ID'; // Use if sending inline messages
+
+    function getPlayerId() {
+        // This function should fetch the player ID from the game context
+        // For now, we simulate it
+        playerId = "your-player-id"; // Replace with actual logic to fetch player ID
+        return playerId;
+    }
+
+    function saveScore(score) {
+        // Set the new score using the Telegram Bot API
+        if (score > highScore) {
+            highScore = score;
+
+            // Telegram API call to set the game score
+            fetch(`https://api.telegram.org/bot${botToken}/setGameScore`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    user_id: playerId,
+                    score: highScore,
+                    chat_id: chatId,
+                    message_id: inlineMessageId // Optional, use if applicable
+                    // force: false, // Uncomment if you want to allow decreasing score
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.ok) {
+                    console.log('Score saved successfully:', data.result);
+                } else {
+                    console.error('Error saving score:', data);
+                }
+            })
+            .catch(error => {
+                console.error('Fetch error:', error);
+            });
         }
+    }
 
-        function saveScore(score) {
-            // Здесь сохраните рекорд игрока
-            if (score > highScore) {
-                highScore = score;
-                // Сохраните highScore в местное хранилище или отправьте на сервер
+    function getHighScore() {
+        // Get the high score for the user
+        fetch(`https://api.telegram.org/bot${botToken}/getGameHighScores`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                user_id: playerId,
+                chat_id: chatId,
+                message_id: inlineMessageId // Optional, use if applicable
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.ok) {
+                const scores = data.result;
+                if (scores.length > 0) {
+                    highScore = scores[0].score; // Get the score of the user
+                    console.log('High Score:', highScore);
+                }
+            } else {
+                console.error('Error fetching high scores:', data);
             }
-        }
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+        });
+    }
 
-        function getHighScore() {
-            // Вернуть максимальный рекорд, полученный ранее
-            return highScore;
-        }
+    // Expose Unity functions to call from Unity
+    UnityInstance.Module['GetPlayerId'] = function() {
+        return getPlayerId();
+    };
 
-        function onUnityLoaded(unityInstance) {
-            UnityInstance = unityInstance;
-            unityInstance.Module['GetPlayerId'] = function () {
-                return getPlayerId();
-            };
+    UnityInstance.Module['SaveScore'] = function(score) {
+        saveScore(score);
+    };
 
-            unityInstance.Module['SaveScore'] = function (score) {
-                saveScore(score);
-            };
+    UnityInstance.Module['GetHighScore'] = function() {
+        getHighScore();
+    };
+</script>
 
-            unityInstance.Module['GetHighScore'] = function () {
-                return getHighScore();
-            };
-        }
-
-        var UnityInstance;
-    </script>
-</body>
+  
+  </body>
 </html>
